@@ -1,0 +1,180 @@
+{
+  "mode": "recon",
+  "prompt": "a photo of a tractor",
+  "final": {
+    "atoms_total": 256,
+    "atoms_open_hard": 205,
+    "expected_L0": 204.77130126953125
+  },
+  "log": [
+    {
+      "it": 0,
+      "mse": 0.08837052434682846,
+      "psnr_db": 10.536925681109881,
+      "atoms_total": 256,
+      "atoms_open_hard": 256,
+      "expected_L0": 249.0923309326172
+    },
+    {
+      "it": 100,
+      "mse": 0.011498257517814636,
+      "psnr_db": 19.39367969014666,
+      "atoms_total": 256,
+      "atoms_open_hard": 256,
+      "expected_L0": 250.169189453125
+    },
+    {
+      "it": 200,
+      "mse": 0.009334055706858635,
+      "psnr_db": 20.29929611517167,
+      "atoms_total": 256,
+      "atoms_open_hard": 248,
+      "expected_L0": 247.5047607421875
+    },
+    {
+      "it": 300,
+      "mse": 0.007919667288661003,
+      "psnr_db": 21.012930630738545,
+      "atoms_total": 256,
+      "atoms_open_hard": 243,
+      "expected_L0": 242.53134155273438
+    },
+    {
+      "it": 400,
+      "mse": 0.007256483193486929,
+      "psnr_db": 21.392738062569137,
+      "atoms_total": 256,
+      "atoms_open_hard": 238,
+      "expected_L0": 238.95872497558594
+    },
+    {
+      "it": 500,
+      "mse": 0.006516254507005215,
+      "psnr_db": 21.86001961682524,
+      "atoms_total": 256,
+      "atoms_open_hard": 234,
+      "expected_L0": 234.8245086669922
+    },
+    {
+      "it": 600,
+      "mse": 0.006090131588280201,
+      "psnr_db": 22.153733235499526,
+      "atoms_total": 256,
+      "atoms_open_hard": 227,
+      "expected_L0": 230.34852600097656
+    },
+    {
+      "it": 700,
+      "mse": 0.0058913156390190125,
+      "psnr_db": 22.297877084451322,
+      "atoms_total": 256,
+      "atoms_open_hard": 224,
+      "expected_L0": 225.7252960205078
+    },
+    {
+      "it": 800,
+      "mse": 0.005611315369606018,
+      "psnr_db": 22.509353222017744,
+      "atoms_total": 256,
+      "atoms_open_hard": 220,
+      "expected_L0": 221.55218505859375
+    },
+    {
+      "it": 900,
+      "mse": 0.005355779081583023,
+      "psnr_db": 22.71177345332207,
+      "atoms_total": 256,
+      "atoms_open_hard": 214,
+      "expected_L0": 217.10906982421875
+    },
+    {
+      "it": 1000,
+      "mse": 0.00523292925208807,
+      "psnr_db": 22.812551367748494,
+      "atoms_total": 256,
+      "atoms_open_hard": 211,
+      "expected_L0": 213.45681762695312
+    },
+    {
+      "it": 1100,
+      "mse": 0.005150160286575556,
+      "psnr_db": 22.88179254358415,
+      "atoms_total": 256,
+      "atoms_open_hard": 211,
+      "expected_L0": 211.37710571289062
+    },
+    {
+      "it": 1200,
+      "mse": 0.005105035379528999,
+      "psnr_db": 22.9200124376689,
+      "atoms_total": 256,
+      "atoms_open_hard": 210,
+      "expected_L0": 210.1573028564453
+    },
+    {
+      "it": 1300,
+      "mse": 0.005170808639377356,
+      "psnr_db": 22.86441534244997,
+      "atoms_total": 256,
+      "atoms_open_hard": 207,
+      "expected_L0": 208.49203491210938
+    },
+    {
+      "it": 1400,
+      "mse": 0.004866582807153463,
+      "psnr_db": 23.127758825046,
+      "atoms_total": 256,
+      "atoms_open_hard": 206,
+      "expected_L0": 207.050537109375
+    },
+    {
+      "it": 1500,
+      "mse": 0.004819740541279316,
+      "psnr_db": 23.16976340293014,
+      "atoms_total": 256,
+      "atoms_open_hard": 206,
+      "expected_L0": 206.20001220703125
+    },
+    {
+      "it": 1600,
+      "mse": 0.004706794396042824,
+      "psnr_db": 23.272747722934195,
+      "atoms_total": 256,
+      "atoms_open_hard": 206,
+      "expected_L0": 205.97372436523438
+    },
+    {
+      "it": 1700,
+      "mse": 0.004602449014782906,
+      "psnr_db": 23.370110138442822,
+      "atoms_total": 256,
+      "atoms_open_hard": 206,
+      "expected_L0": 205.7631072998047
+    },
+    {
+      "it": 1800,
+      "mse": 0.004535478539764881,
+      "psnr_db": 23.43376883639185,
+      "atoms_total": 256,
+      "atoms_open_hard": 205,
+      "expected_L0": 205.0829620361328
+    },
+    {
+      "it": 1900,
+      "mse": 0.004492516629397869,
+      "psnr_db": 23.47510306641389,
+      "atoms_total": 256,
+      "atoms_open_hard": 205,
+      "expected_L0": 204.90322875976562
+    },
+    {
+      "it": 1999,
+      "mse": 0.004430058877915144,
+      "psnr_db": 23.53590501726427,
+      "atoms_total": 256,
+      "atoms_open_hard": 205,
+      "expected_L0": 204.77130126953125
+    }
+  ],
+  "note": "Envelope-relative phase; hard-concrete gates. GO if final_hardgates.png is a recognizable object; NO-GO if soup after full schedule + one seed retry."
+}
