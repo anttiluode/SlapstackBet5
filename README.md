@@ -1,84 +1,146 @@
-# Slapstack Bet 5 — Object Permanence in Gabor Packet Space
+# SlapstackBet5 — Object Permanence in Gabor Packet Space
+
+![pic1](/runs/recon_tractor/final_hardgates.png)
 
 > "we prompt a tractor, a tractor appears in gabor space, background as a
 > beach in miami, a beach appears, at dusk, it turns to dusk, **the tractor
 > stays**."
 
-Bet 4 answered the go/no-go: a recognizable tractor crystallized out of 256
-hard-gated Gabor packets under nothing but score-distillation gradients from
-a frozen Stable Diffusion model. Bet 5 tests the claim that makes the whole
-program worth running: **permanence and editability by construction.**
+![pic1](/runs/bet5_dusk/final_hardgates.png)
 
-The scene is a finite set of Gabor atoms, each with position, orientation,
-scale, frequency, **envelope-relative phase**, amplitude, and color, behind a
-hard-concrete gate. Identity lives in the intrinsic channels; pose lives in
-a Sim(2) group element. Because the factorization is architectural, "the
-tractor stays" is not a hoped-for emergent property — it is a frozen tensor.
+This repo contains Bets 4 and 5 of the Slapstack program: text-to-image and
+image editing performed directly on a sparse set of Gabor packets — no
+pixel-space generation, no trained text-to-atom model, no encoder. A scene
+is a finite set of atoms (position, orientation, scale, frequency,
+**envelope-relative phase**, amplitude, color) behind hard-concrete gates.
+Identity lives in the intrinsic channels; pose lives in a Sim(2) group
+element; edits are gradient masks over parameter subsets.
+
+**Both bets are now GO.** An entire editable tractor scene is a 15 KB file.
+
+## Results
+
+### Bet 4 — GO: text conjures an object from random atoms
+Pure Score Distillation Sampling (frozen SD 2.1-base, cfg 50, timestep
+annealing 0.98→0.50, native 512 rendering) assembled a recognizable red
+tractor — chassis, cab, exhaust stack, wheels, treeline — from 256 randomly
+initialized Gabor packets. No target image, no paired data, no trained
+text→atom model. Separately, recon mode established the capacity bound:
+205 open atoms reconstruct a real tractor photo at 23.5 dB PSNR.
+
+### Bet 5 — GO: the tractor stays
+Loaded the 23.5 dB recon atoms, froze all geometry channels
+(`xy, theta, sigma_u, sigma_v, freq`) plus gates, and ran SDS with
+*"a photo of a red tractor at dusk, golden hour, warm light"* — gradients
+touching only `phase, amp, color, bg_bias`.
+
+```
+geometry fingerprint before/after: e475df55520bf8b2 / e475df55520bf8b2
+    -> IDENTICAL — permanence held by construction
+open atoms: 205/256 (unchanged, gates frozen)
+```
+
+The output is unmistakably the *same tractor* — same pose, same wheels,
+same cab, same exhaust stack — relit: warm highlights, lit lamps, a
+twilight atmosphere replacing the flat green-screen background. Appearance
+channels alone expressed a relight while geometry was bitwise untouchable.
+This is the empirical form of the fiber-bundle claim: **illumination acts
+on the amplitude/chroma fibers; geometry is the base space.**
+
+What makes this different from pixel-space editing: permanence here is not
+a property the optimizer was coaxed into preserving (attention surgery,
+inversion tricks, careful prompting). It is a boolean mask. The tractor
+*cannot* move, because the tensors that encode its shape are excluded from
+the optimizer and SHA-256 fingerprinted before and after to prove it.
+
+Honest reading of the result: the relight is real but reads as moody
+teal-warm twilight rather than textbook golden hour, and because this run
+used no group masks, object and background were relit together. Both are
+expected: SD 2.1's mode-seeking pulls color statistics toward its
+prompt-mean, and separating "relight the scene" from "relight the object"
+is precisely what the group machinery (Experiment 4 below) exists for.
+Also note the trainable `phase` channel means *texture* could in principle
+have been rewritten even with shape frozen; that it wasn't abused is mildly
+interesting and worth a follow-up ablation (`--freeze geometry,gates,phase`).
 
 ## Ledger
 
-**Verified (Bet 4, GPU):**
-- 205 open atoms reconstruct a real tractor photo at 23.5 dB; the whole
-  editable scene is a 15 KB file (~2,500 floats).
-- Pure SDS (SD 2.1-base, cfg 50, timestep annealing 0.98→0.50) assembles a
-  recognizable tractor from random atoms. **Bet 4: GO.**
-- Render resolution is causal for SDS gradient quality: native 512 rendering
-  fixed the failure that 256→512 bilinear upsampling caused.
-- Additive-render-into-sigmoid can saturate under color-token pressure
+**Verified (GPU, this repo):**
+- Bet 4 GO: SDS assembles a recognizable object from random atoms.
+- Bet 5 GO: frozen-geometry relight; fingerprint bitwise identical;
+  appearance channels sufficient to express a lighting edit.
+- 205 atoms / 23.5 dB / 15 KB capacity bound for a real tractor photo.
+- Native-512 rendering is causal for SDS gradient quality (the 256→512
+  bilinear upsample destroyed structure through the VAE).
+- Additive-render-into-sigmoid saturates under color-token pressure
   ("solid red" collapse); LR rebalance (color 2e-3, bg 5e-4) escapes it.
 
-**Verified (this repo, CPU test battery — `python tests.py`):**
+**Verified (CPU test battery, `python tests.py`, ~1 min, no SD needed):**
 - Bet 4 `atoms.pt` files load directly (N inferred, group buffer defaulted).
-- Sim(2) cameras are **exactly** equivariant: a camera shift equals a
-  pixel-space roll to machine precision (MSE ~4e-15). Texture is
-  phase-locked to envelopes; pose never touches phase.
-- Freezing geometry gives **bitwise** permanence under optimization
-  (SHA-256 fingerprint identical after training steps) while appearance
-  channels train freely.
+- Sim(2) cameras exactly equivariant: camera shift == pixel roll to
+  machine precision (MSE ~4e-15). Texture is phase-locked to envelopes.
+- Geometry freeze is bitwise under optimization (SHA-256 verified) while
+  appearance trains.
 - Per-atom group masks: masked atoms bitwise frozen, others train.
-- The leaky soft clamp keeps a nonzero escape gradient even at absurd
-  saturation (bg_bias=50) — the solid-red trap always has an exit ramp.
+- Leaky soft clamp keeps a nonzero escape gradient at any saturation depth.
 
 **Killed:**
 - "SDS gradients are too chaotic to organize sparse atoms" (Bet 4).
-- "Plain tanh soft clamp has no dead zones" — false; tanh gradient
-  underflows in fp32 for |pre| ≳ 40. Caught by test 5, fixed with a
-  0.02·pre linear leak. Kept on the ledger as a warning.
+- "Appearance channels can't express a relight without geometry's help"
+  (Bet 5).
+- "Plain tanh soft clamp has no dead zones" — false; tanh underflows in
+  fp32 for |pre| ≳ 40. Caught by test 5, fixed with a 0.02·pre linear leak.
 
-**Open (what this repo exists to test):**
-1. Frozen-geometry relighting reads as *the same tractor at dusk*.
-2. Random Sim(2) cameras cure the SDS zoom-crop trap.
-3. Normalized SDS loss + gate warmup re-engages pruning in SDS mode
-   (Bet 4 ran 256/256 open the whole way — L0 was numerically invisible).
-4. Two-group editing: background repaints to a beach while a frozen
-   tractor group survives untouched.
+**Open:**
+1. Random Sim(2) cameras cure the SDS zoom-crop trap (Experiment 2 — the
+   camera code is tested for equivariance but has not yet run under real
+   SDS gradients).
+2. Normalized SDS loss + gate warmup re-engages pruning in from-scratch
+   SDS mode ("tractor from K atoms" is still unmeasured; the Bet 5 run
+   had gates frozen by design, so it does not answer this).
+3. Two-group editing: background repaints to a beach around a bitwise-
+   frozen tractor group (Experiment 4).
+4. Phase ablation: does freezing phase alongside geometry change the
+   relight quality? (Separates lighting from texture rewriting.)
+5. SD's mode-seeking oversaturation: VSD or multi-step guidance are the
+   known upgrades — not to be reached for until they are the actual
+   bottleneck.
+
+## Repo contents
+
+```
+bet5_gabor_sds.py   current main script: renderer, gates, Sim(2) cameras,
+                    freeze/group machinery, recon / sds / render modes
+tests.py            CPU verification battery — run this first
+bet4_gabor_sds.py   Bet 4 script kept for provenance (superseded by bet5:
+                    hard clamp, no cameras, no freeze/groups, unnormalized
+                    L0 that never pruned in sds mode)
+README_bet4.md      Bet 4 documentation, kept for provenance
+runs/               ledgers and snapshots from the GO runs
+```
 
 ## Install
 
 ```bash
 pip install torch diffusers transformers accelerate pillow numpy
-python tests.py     # ~1 min, CPU, no SD weights needed — should print 5x PASS
+python tests.py     # should print 5x PASS
 ```
 
-## What's new vs Bet 4
-
-| Change | Why |
-|---|---|
-| Leaky soft clamp `4·tanh(pre/4) + 0.02·pre` | Hard clamp fixed saturation but had zero gradient outside the corridor; plain tanh dies numerically at depth. The leak guarantees an escape gradient at any saturation. |
-| Random Sim(2) cameras during SDS | DreamFusion's cure for the zoom-crop trap, nearly free here: cameras are parameter arithmetic on atoms. Only a complete, centered object scores well under every random view. |
-| SDS loss normalized per-element + `--gate-warmup` | In Bet 4 the raw SDS loss dwarfed L0 → gates never closed. Now "tractor from K atoms" is measurable in SDS mode. |
-| `--init-atoms` | Load any previous atoms.pt; N inferred from the file. Reconstruction as initialization = semi-amortized refinement in generative clothing. |
-| `--freeze` channel groups | `geometry`, `appearance`, or any of position / orientation / scale / frequency / phase / amp / color / bg / gates. Frozen = excluded from the optimizer; geometry runs are fingerprint-verified. |
-| `--train-groups` + `--assign-group-rect` | Per-atom gradient masks. The two-slot tractor/background experiment is a flag, not a rewrite. |
-| `--mode render` with `--camera` / `--gif` | The "glide" demo: object translates, zooms, rotates with texture riding the envelopes. Zero re-optimization. |
-
-## The experiments, in order
-
-### 1. Permanence (the bet): dusk relight with frozen geometry
-
-Uses the `atoms.pt` from your 23.5 dB Bet 4 recon run.
+## Reproduce the GO runs
 
 ```bash
+# Capacity bound (needs any tractor photo):
+python bet5_gabor_sds.py --mode recon --target tractor.jpg \
+    --atoms 256 --iters 2000 --render-size 256 --out runs/recon_tractor
+
+# Bet 4 (from-scratch SDS):
+python bet5_gabor_sds.py --mode sds \
+    --prompt "a photo of a red tractor, centered, high quality" \
+    --atoms 256 --iters 2000 --render-size 512 --cfg 50 --no-camera \
+    --sd-model sd2-community/stable-diffusion-2-1-base \
+    --out runs/sds_tractor
+
+# Bet 5 (the permanence run, exactly as executed):
 python bet5_gabor_sds.py --mode sds \
     --init-atoms runs/recon_tractor/atoms.pt \
     --freeze geometry,gates \
@@ -87,81 +149,46 @@ python bet5_gabor_sds.py --mode sds \
     --out runs/bet5_dusk
 ```
 
-`--no-camera` here: the object is already well-composed; cameras are for
-forming objects from scratch. The script prints the geometry fingerprint
-before/after — it must be IDENTICAL (permanence by construction), so the
-scientific question is only whether appearance channels alone can express
-"dusk". GO: same tractor, relit. NO-GO: scene refuses to read as dusk after
-a seed retry and `--cfg 100`.
-
-### 2. Zoom-trap cure: from-scratch SDS with random cameras
+## Next experiments
 
 ```bash
+# 2. Zoom-trap cure: from-scratch SDS with random cameras ON (the default)
 python bet5_gabor_sds.py --mode sds \
     --prompt "a photo of a red tractor in a green field" \
     --atoms 256 --iters 3000 --render-size 512 --cfg 50 \
     --out runs/bet5_cameras
-```
+# watch: composition (whole + centered?) and open-atom count (pruning
+# should engage after the 400-iter gate warmup -> "tractor from K atoms")
 
-Cameras are ON by default in sds mode (`--cam-zoom 0.3 --cam-shift 0.25
---cam-rot 0.15`). Compare composition against the Bet 4 run that anchored a
-zoomed front-left crop. Also watch the open-atom count: with the normalized
-loss and warmup, gates should start closing after iteration ~400.
-
-### 3. The glide demo
-
-```bash
+# 3. The glide demo (equivariance as a visible object):
 python bet5_gabor_sds.py --mode render \
     --init-atoms runs/recon_tractor/atoms.pt \
-    --render-size 512 --gif --camera "1.3,0.25,0.2,-0.1" \
-    --out runs/glide
-```
+    --render-size 512 --gif --camera "1.3,0.25,0.2,-0.1" --out runs/glide
 
-Writes `identity.png`, `camera.png`, and `glide.gif` — the tractor sweeping
-across the frame with texture phase-locked to its envelopes. This is the
-equivariance test as a visible object.
-
-### 4. Two slots: the beach (preview of Bet 6)
-
-Assign background atoms to group 1 (rect coordinates in [-1,1]; tune the
-box around your tractor), then let ONLY the background train:
-
-```bash
+# 4. Two slots — the beach (background trains, tractor bitwise frozen):
 python bet5_gabor_sds.py --mode sds \
     --init-atoms runs/recon_tractor/atoms.pt \
     --assign-group-rect "-1,-1,1,1:1" \
     --assign-group-rect "-0.55,-0.5,0.55,0.6:0" \
     --train-groups 1 --freeze gates \
-    --prompt "a tractor on a beach in miami, ocean, sand" \
+    --prompt "a tractor on a beach in miami, ocean, sand, blue sky" \
     --iters 1500 --render-size 512 --cfg 50 --no-camera \
     --out runs/bet5_beach
-```
+# rect assignment is a crude stand-in for real grouping (common-fate
+# clustering is Bets 2/3 territory) — tune the inner box to your tractor.
 
-(Second rect overwrites the first inside the box: everything is group 1
-except a central window of group 0 = tractor. Rect assignment is a crude
-stand-in for real grouping — bets 2/3, common-fate clustering — but it is
-enough to test whether subset-masked SDS repaints a background around a
-bitwise-frozen object.)
-
-## Files
-
-```
-bet5_gabor_sds.py   everything: renderer, gates, cameras, freeze/groups,
-                    recon / sds / render modes
-tests.py            CPU verification battery (run this first)
+# 5. Phase ablation (lighting vs texture):
+#    rerun the dusk command with --freeze geometry,gates,phase
 ```
 
 ## Honesty note
 
-The recon / render / freeze / group / camera machinery in this repo was
-executed and verified on CPU before shipping (see test battery output in
-ledger above). The sds loop reuses the Bet-4 loop that ran on real GPU +
-SD 2.1, but the *new* pieces (cameras under real SDS gradients, normalized
-L0, frozen-channel SDS) have not yet seen a real run. Experiment 1's first
-launch is a smoke test. Known open risk: SD 2.1's mode-seeking mean did a
-lot of compositional work in Bet 4 and oversaturation will persist; VSD or
-multi-step guidance are the known upgrades, not to be reached for until
-they're the actual bottleneck.
+Bet 4 and Bet 5 results above ran on real GPU + SD 2.1 (community mirror
+`sd2-community/stable-diffusion-2-1-base`). The CPU battery verified the
+mechanical claims (equivariance, freezing, masking, saturation escape)
+before any GPU time was spent. Random cameras under real SDS gradients and
+group-masked SDS remain untested — the next runs are smoke tests for those
+paths. Ledgers for all runs are committed under `runs/`.
 
 ---
 *Slapstack lineage: hard-concrete gates, envelope-relative phase, honest
