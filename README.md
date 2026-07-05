@@ -18,6 +18,8 @@ element; edits are gradient masks over parameter subsets.
 
 **Both bets are now GO.** An entire editable tractor scene is a 15 KB file.
 
+![pic3](/runs/glide/glide.gif)
+
 ## Results
 
 ### Bet 4 — GO: text conjures an object from random atoms
