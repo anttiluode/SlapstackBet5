@@ -168,8 +168,8 @@ python bet5_gabor_sds.py --mode render \
 # 4. Two slots — the beach (background trains, tractor bitwise frozen):
 python bet5_gabor_sds.py --mode sds \
     --init-atoms runs/recon_tractor/atoms.pt \
-    --assign-group-rect "-1,-1,1,1:1" \
-    --assign-group-rect "-0.55,-0.5,0.55,0.6:0" \
+    --assign-group-rect="-1,-1,1,1:1" \ 
+    --assign-group-rect="-0.55,-0.5,0.55,0.6:0" \
     --train-groups 1 --freeze gates \
     --prompt "a tractor on a beach in miami, ocean, sand, blue sky" \
     --iters 1500 --render-size 512 --cfg 50 --no-camera \
