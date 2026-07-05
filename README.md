@@ -42,6 +42,8 @@ geometry fingerprint before/after: e475df55520bf8b2 / e475df55520bf8b2
 open atoms: 205/256 (unchanged, gates frozen)
 ```
 
+![pic4](/runs/bet5_beach/final_hardgates.png)
+
 The output is unmistakably the *same tractor* — same pose, same wheels,
 same cab, same exhaust stack — relit: warm highlights, lit lamps, a
 twilight atmosphere replacing the flat green-screen background. Appearance
