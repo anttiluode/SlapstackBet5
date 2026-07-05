@@ -6,7 +6,7 @@
 > beach in miami, a beach appears, at dusk, it turns to dusk, **the tractor
 > stays**."
 
-![pic1](/runs/bet5_dusk/final_hardgates.png)
+![pic2](/runs/bet5_dusk/final_hardgates.png)
 
 This repo contains Bets 4 and 5 of the Slapstack program: text-to-image and
 image editing performed directly on a sparse set of Gabor packets — no
